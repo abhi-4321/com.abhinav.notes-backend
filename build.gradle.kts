@@ -9,6 +9,7 @@ plugins {
     kotlin("jvm") version "1.9.22"
     id("io.ktor.plugin") version "2.3.8"
     id("org.jetbrains.kotlin.plugin.serialization") version "1.9.22"
+    id("com.github.johnrengelman.shadow") version "7.1.2"
 }
 
 group = "com.abhinav"
@@ -48,6 +49,10 @@ dependencies {
     sshAntTask("org.apache.ant:ant-jsch:1.10.12")
 }
 
+tasks {
+    create("stage").dependsOn("installDist")
+}
+
 tasks.withType<com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar> {
     manifest {
         attributes(
@@ -69,50 +74,50 @@ ant.withGroovyBuilder {
     )
 }
 
-task("deploy") {
-    dependsOn("clean", "shadowJar")
-    ant.withGroovyBuilder {
-        doLast {
-            val knownHosts = File.createTempFile("knownhosts", "txt")
-            val user = "root"
-            val host = "145.14.158.77"
-            val key = file("keys/jwtauthkey-yt")
-            val jarFileName = "com.plcoding.ktor-jwt-auth-$version-all.jar"
-            try {
-                "scp"(
-                    "file" to file("build/libs/$jarFileName"),
-                    "todir" to "$user@$host:/root/jwtauth",
-                    "keyfile" to key,
-                    "trust" to true,
-                    "knownhosts" to knownHosts
-                )
-                "ssh"(
-                    "host" to host,
-                    "username" to user,
-                    "keyfile" to key,
-                    "trust" to true,
-                    "knownhosts" to knownHosts,
-                    "command" to "mv /root/jwtauth/$jarFileName /root/jwtauth/jwtauth.jar"
-                )
-                "ssh"(
-                    "host" to host,
-                    "username" to user,
-                    "keyfile" to key,
-                    "trust" to true,
-                    "knownhosts" to knownHosts,
-                    "command" to "systemctl stop jwtauth"
-                )
-                "ssh"(
-                    "host" to host,
-                    "username" to user,
-                    "keyfile" to key,
-                    "trust" to true,
-                    "knownhosts" to knownHosts,
-                    "command" to "systemctl start jwtauth"
-                )
-            } finally {
-                knownHosts.delete()
-            }
-        }
-    }
-}
+//task("deploy") {
+//    dependsOn("clean", "shadowJar")
+//    ant.withGroovyBuilder {
+//        doLast {
+//            val knownHosts = File.createTempFile("knownhosts", "txt")
+//            val user = "root"
+//            val host = "145.14.158.77"
+//            val key = file("keys/jwtauthkey-yt")
+//            val jarFileName = "com.plcoding.ktor-jwt-auth-$version-all.jar"
+//            try {
+//                "scp"(
+//                    "file" to file("build/libs/$jarFileName"),
+//                    "todir" to "$user@$host:/root/jwtauth",
+//                    "keyfile" to key,
+//                    "trust" to true,
+//                    "knownhosts" to knownHosts
+//                )
+//                "ssh"(
+//                    "host" to host,
+//                    "username" to user,
+//                    "keyfile" to key,
+//                    "trust" to true,
+//                    "knownhosts" to knownHosts,
+//                    "command" to "mv /root/jwtauth/$jarFileName /root/jwtauth/jwtauth.jar"
+//                )
+//                "ssh"(
+//                    "host" to host,
+//                    "username" to user,
+//                    "keyfile" to key,
+//                    "trust" to true,
+//                    "knownhosts" to knownHosts,
+//                    "command" to "systemctl stop jwtauth"
+//                )
+//                "ssh"(
+//                    "host" to host,
+//                    "username" to user,
+//                    "keyfile" to key,
+//                    "trust" to true,
+//                    "knownhosts" to knownHosts,
+//                    "command" to "systemctl start jwtauth"
+//                )
+//            } finally {
+//                knownHosts.delete()
+//            }
+//        }
+//    }
+//}

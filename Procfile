@@ -1,0 +1,1 @@
+web: ./build/install/com.abhinav.notes-backend/bin/com.abhinav.notes-backend
