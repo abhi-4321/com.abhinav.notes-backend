@@ -48,16 +48,32 @@ dependencies {
     sshAntTask("org.apache.ant:ant-jsch:1.10.12")
 }
 
-tasks {
-    create("stage").dependsOn("installDist")
+//tasks {
+//    create("stage").dependsOn("installDist")
+//}
+//
+//tasks.withType<com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar> {
+//    manifest {
+//        attributes(
+//            "Main-Class" to application.mainClass.get()
+//        )
+//    }
+//}
+ktor {
+    fatJar {
+        archiveFileName.set("fat.jar")
+    }
 }
 
-tasks.withType<com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar> {
-    manifest {
-        attributes(
-            "Main-Class" to application.mainClass.get()
-        )
-    }
+tasks.register<Jar>("uberJar") {
+    archiveClassifier.set("uber")
+
+    from(sourceSets.main.get().output)
+
+    dependsOn(configurations.runtimeClasspath)
+    from({
+        configurations.runtimeClasspath.get().filter { it.name.endsWith("jar") }.map { zipTree(it) }
+    })
 }
 
 ant.withGroovyBuilder {
