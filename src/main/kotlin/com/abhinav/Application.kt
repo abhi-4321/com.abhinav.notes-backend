@@ -13,6 +13,7 @@ import io.ktor.server.application.*
 import kotlinx.coroutines.DelicateCoroutinesApi
 import org.litote.kmongo.coroutine.coroutine
 import org.litote.kmongo.reactivestreams.KMongo
+import java.io.File
 
 fun main(args: Array<String>) {
     io.ktor.server.netty.EngineMain.main(args)
@@ -22,9 +23,7 @@ fun main(args: Array<String>) {
 fun Application.module() {
 
     val dbName = "notes-database"
-    val password = System.getenv("MONGO_PW")
-    val connectionString = "mongodb+srv://abhinavmahalwal:$password@cluster0.9fcj1tk.mongodb.net/$dbName?retryWrites=true&w=majority&appName=Cluster0"
-
+    val connectionString = System.getenv("CON_STR")
     val db = KMongo.createClient(connectionString).coroutine.getDatabase(dbName)
 
     val userDataSource = UserDataSourceImpl(db)
